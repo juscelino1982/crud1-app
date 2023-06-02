@@ -1,58 +1,147 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div class="hello-world">
+    <div class="form-container">
+      <h2>Usuários</h2>
+
+      <!-- Formulário para criar ou atualizar um usuário -->
+      <form @submit.prevent="salvarUsuario">
+        <div class="form-group">
+          <label for="nome">Nome:</label>
+          <input type="text" v-model="usuario.nome" id="nome">
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" v-model="usuario.email" id="email">
+        </div>
+        <div class="form-group">
+          <label for="foto">Foto:</label>
+          <input type="file" @change="handleFotoUpload" id="foto">
+        </div>
+        <div class="form-group">
+          <button type="submit">{{ modoEdicao ? 'Atualizar' : 'Criar' }}</button>
+          <button type="button" @click="limparFormulario">Limpar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Listagem dos últimos usuários cadastrados -->
+    <div class="usuarios-container">
+      <h3>Últimos usuários cadastrados:</h3>
+      <div class="usuarios-list">
+        <div v-for="usuario in ultimosUsuarios" :key="usuario.id" class="usuario-card">
+          <div class="usuario-avatar">
+            <img :src="usuario.foto" alt="Imagem do usuário">
+          </div>
+          <div class="usuario-info">
+            <h4>{{ usuario.nome }}</h4>
+            <p>{{ usuario.email }}</p>
+            <button @click="excluirUsuario(usuario.id)">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  data() {
+    return {
+      usuario: {
+        nome: '',
+        email: '',
+        foto: ''
+      },
+      modoEdicao: false,
+      ultimosUsuarios: []
+    };
+  },
+
+  methods: {
+    salvarUsuario() {
+      this.ultimosUsuarios.push({
+        id: this.ultimosUsuarios.length + 1,
+        nome: this.usuario.nome,
+        email: this.usuario.email,
+        foto: this.usuario.foto
+      });
+
+      this.limparFormulario();
+    },
+
+    handleFotoUpload(event) {
+      const file = event.target.files[0];
+      const fotoURL = URL.createObjectURL(file);
+
+      this.usuario.foto = fotoURL;
+    },
+
+    limparFormulario() {
+      this.usuario.nome = '';
+      this.usuario.email = '';
+      this.usuario.foto = '';
+    },
+
+    excluirUsuario(usuarioId) {
+      this.ultimosUsuarios = this.ultimosUsuarios.filter((usuario) => usuario.id !== usuarioId);
+    }
   }
-}
+};
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.hello-world {
+  display: flex;
+  justify-content: center;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+.form-container {
+  width: 300px;
+  margin-right: 20px;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.form-group {
+  margin-bottom: 15px;
 }
-a {
-  color: #42b983;
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+button {
+  padding: 10px 20px;
+}
+
+.usuarios-container {
+  flex-grow: 1;
+}
+
+.usuarios-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.usuario-card {
+  width: 200px;
+  padding: 20px;
+  margin: 10px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+}
+
+.usuario-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.usuario-info h4 {
+  margin-top: 0;
+}
+
+.usuario-info p {
+  margin-bottom: 0;
 }
 </style>
